@@ -105,7 +105,11 @@ def extract_artifacts_from_desc(text: str, tomb_id: str) -> list[dict]:
     """Extract artifacts from tomb description paragraph."""
     artifacts = []
 
-    m = re.search(r'随葬品有(.+?)(?:$|(?:图\d|图版))', text, re.DOTALL)
+    m = re.search(
+        r'随葬(?:品|器物)?(?:有|为)?(.+?)(?:[。；;]|$|(?:图\d|图版))',
+        text,
+        re.DOTALL,
+    )
     if not m:
         if '无随葬品' in text:
             return artifacts
@@ -167,14 +171,17 @@ def extract_detailed_artifacts(text: str, tomb_id: str) -> list[dict]:
 def _find_tomb_paragraphs(content: str) -> list[tuple[int, str]]:
     """Find tomb entries in plain-text paragraph format (e.g. '09ⅡTG3M48 位于…')."""
     lines = content.splitlines(keepends=True)
-    # Match prefixed tomb IDs: digits, uppercase letters, roman numerals, then M+digits
-    # Examples: 09ⅡTG3M48, 09ⅡM1, 09IM3
-    pat = re.compile(r'^(\S{2,20}(?:M|墓)(\d+))\s*位于')
+    # Match plain and prefixed tomb IDs at the start of a paragraph.
+    # Examples: M1, M 1, 09ⅡTG3M48, 09ⅡM1, 09IM3
+    pat = re.compile(
+        r'^\s*([0-9A-Za-zⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ一二三四五六七八九十百千]*'
+        r'(?:M|墓)\s*\d+)\s*位于'
+    )
     entries = []
     for i, line in enumerate(lines):
         m = pat.search(line)
         if m:
-            entries.append((i + 1, m.group(1)))
+            entries.append((i + 1, m.group(1).replace(' ', '')))
     return entries
 
 

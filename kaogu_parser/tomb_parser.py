@@ -163,9 +163,10 @@ class WebTombParser:
     @staticmethod
     def extract_direction(text: str) -> str:
         for pattern in [
-            r'方向\s*\$?\s*(\d+)\s*\^?\{?\\?circ\}?\s*\$?°?',
-            r'方向\s*(\d+)°',
-            r'方向\s*(南北向|东西向|南向|北向|东向|西向)',
+            r'(?:方向|墓向)\s*\$?\s*(\d+)\s*\^?\{?\\?circ\}?\s*\$?°?',
+            r'(?:方向|墓向)\s*(\d+)\s*(?:°|度)',
+            r'(?:方向|墓向)\s*(\d+)(?!\d)',
+            r'(?:方向|墓向)\s*(南北向|东西向|南向|北向|东向|西向)',
         ]:
             m = re.search(pattern, text)
             if m:
